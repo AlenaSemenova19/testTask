@@ -1,0 +1,116 @@
+<apex:page controller="DeliveryOrdersController">
+    <apex:form>
+        <apex:pageBlock title="Orders">
+            <apex:commandButton styleClass="button-create-order"
+                                value="New Order"
+                                action="{!openPopup}"
+                                reRender="newOrderPopup"/>
+
+            <div class="sorting-orders">
+                <apex:pageBlockSection columns="1" collapsible="false">
+                    <apex:selectList styleClass="select" value="{!selectedField}" multiselect="false" size="1">
+                        <apex:selectOptions value="{!allFieldsForOrders}"/>
+                    </apex:selectList>
+
+                    <apex:commandButton styleClass="button-sort-order"
+                                        action="{!sortingByField}"
+                                        value="Sort"
+                                        reRender="display_all_orders"/>
+                </apex:pageBlockSection>
+            </div>
+
+            <div class="search_orders">
+                <apex:inputText value="{!searchString}" label="Search" html-placeholder="Enter Order Name"/>
+
+                <apex:commandButton action="{!startSearch}" value="Search" reRender="display_all_orders"/>
+            </div>
+
+            <apex:pageBlockTable id="display_all_orders" value="{!allOrders}" var="order">
+                <apex:column value="{!order.Name}"/>
+                <apex:column value="{!order.Delivery__c}"/>
+                <apex:column value="{!order.Total_weight_of_the_order__c}"/>
+                <apex:column value="{!order.Total_shipping_cost__c}"/>
+                <apex:column value="{!order.Delivery_date__c}"/>
+                <apex:column headerValue="Action" >
+                    <a href="javascript:if(window.confirm('Are you sure?')) deleteOrder('{!order.Id}');" style="font-weight:bold;">Delete</a>
+                </apex:column>
+            </apex:pageBlockTable>
+
+            <apex:actionFunction action="{!deleteOrder}" name="deleteOrder" reRender="display_all_orders">
+                <apex:param name="idOrder" value="orderId" assignTo="{!orderId}" />
+            </apex:actionFunction>
+
+            <apex:outputPanel id="newOrderPopup">
+                <apex:outputPanel styleClass="background_popup" layout="block" rendered="{!displayPopUp}"/>
+
+                <apex:outputPanel styleClass="new_order_class" layout="block" rendered="{!displayPopUp}">
+                    <apex:pageBlockSection columns="1">
+                        <apex:pageMessages id="error-message"/>
+
+                        <apex:inputField value="{!newOrder.Name}"/>
+                        <apex:inputField value="{!newOrder.Delivery__c}"/>
+                        <apex:inputField value="{!newOrder.Total_weight_of_the_order__c}"/>
+                        <apex:inputField value="{!newOrder.Delivery_date__c}"/>
+                    </apex:pageBlockSection>
+
+                    <div class="group-buttons">
+                        <apex:commandButton value="Cancel" action="{!closePopup}" reRender="newOrderPopup" immediate="true"/>
+
+                        <apex:commandButton value="Save" action="{!saveNewOrder}" reRender="newOrderPopup, display_all_orders">
+                            <apex:actionSupport event="onchange" reRender="error-message" />
+                        </apex:commandButton>
+                    </div>
+                </apex:outputPanel>
+            </apex:outputPanel>
+        </apex:pageBlock>
+    </apex:form>
+
+    <style type="text/css">
+        .btn.button-sort-order {
+            padding: 0;
+            width: 3rem;
+            height: 1.1rem;
+        }
+        .button-create-order {
+            float: right;
+        }
+        .group-buttons {
+            padding-left: 13rem;
+        }
+        .new_order_class {
+            background-color: white;
+            border-width: 2px;
+            border-style: solid;
+            z-index: 9999;
+            left: 50%;
+            padding:28px;
+            position: absolute;
+            width: 500px;
+            margin-left: -250px;
+            top:100px;
+        }
+        .background_popup {
+            background-color:black;
+            opacity: 0.20;
+            filter: alpha(opacity = 20);
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: 9998;
+        }
+        .sorting-orders tbody {
+            display: flex;
+        }
+        .sorting-orders td.data2Col.first {
+            padding-left: 0;
+            width: 0;
+        }
+        .sorting-orders td.data2Col.last {
+            width: 0;
+            padding-right: 0;
+            padding-left: 0;
+        }
+    </style>
+</apex:page>
